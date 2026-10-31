@@ -31,11 +31,8 @@ ENTITIES = {
         "CreatedDate, SystemModstamp FROM Opportunity"
     ),
 }
-def build_query(watermark: str) -> str:
-
-
-    return f"{ACCOUNT_QUERY} WHERE SystemModstamp > {watermark} ORDER BY SystemModstamp ASC"
-
+def build_query(base_query: str, watermark: str) -> str:
+    return f"{base_query} WHERE SystemModstamp > {watermark} ORDER BY SystemModstamp ASC"
 def connect() -> Salesforce:
     """Log in with OAuth client credentials via an External Client App.
 
