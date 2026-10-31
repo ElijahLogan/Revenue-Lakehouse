@@ -12,14 +12,17 @@ from simple_salesforce import Salesforce
 
 from extract.records import landing_path, new_run_id, to_ndjson
 from extract.volume import VolumeClient
+from extract.watermarks import WatermarkStore, max_watermark
 
 log = logging.getLogger(__name__)
 
+WATERMARK_KEY = "salesforce.account"
 ACCOUNT_QUERY = (
     "SELECT Id, Name, Website, Phone, BillingCity, BillingState, Industry, "
     "CreatedDate, SystemModstamp FROM Account"
 )
-
+def build_query(watermark: str) -> str:
+    return f"{ACCOUNT_QUERY} WHERE SystemModstamp > {watermark} ORDER BY SystemModstamp ASC"
 
 def connect() -> Salesforce:
     """Log in with OAuth client credentials via an External Client App.
