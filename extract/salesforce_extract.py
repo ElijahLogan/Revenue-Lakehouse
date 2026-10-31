@@ -16,14 +16,24 @@ from extract.watermarks import WatermarkStore, max_watermark
 
 log = logging.getLogger(__name__)
 
-WATERMARK_KEY = "salesforce.account"
-ACCOUNT_QUERY = (
-    "SELECT Id, Name, Website, Phone, BillingCity, BillingState, Industry, "
-    "CreatedDate, SystemModstamp FROM Account"
-)
+# WATERMARK_KEY = "salesforce.account"
+# ACCOUNT_QUERY = (
+#     "SELECT Id, Name, Website, Phone, BillingCity, BillingState, Industry, "
+#     "CreatedDate, SystemModstamp FROM Account"
+# )
+ENTITIES = {
+    "account": (
+        "SELECT Id, Name, Website, Phone, BillingCity, BillingState, Industry, "
+        "CreatedDate, SystemModstamp FROM Account"
+    ),
+    "opportunity": (
+        "SELECT Id, AccountId, Name, StageName, Amount, CloseDate, IsWon, "
+        "CreatedDate, SystemModstamp FROM Opportunity"
+    ),
+}
 def build_query(watermark: str) -> str:
 
-    
+
     return f"{ACCOUNT_QUERY} WHERE SystemModstamp > {watermark} ORDER BY SystemModstamp ASC"
 
 def connect() -> Salesforce:
