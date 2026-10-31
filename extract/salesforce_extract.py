@@ -44,6 +44,8 @@ def run() -> None:
     run_id = new_run_id()
 
     records = [clean(r) for r in sf.query_all(ACCOUNT_QUERY)["records"]]
+    if not records:
+        return
     path = landing_path("salesforce", "account", run_id)
     volume.write_text(path, to_ndjson(records, "salesforce", "account", run_id))
     log.info("Landed %d accounts at %s", len(records), path)
