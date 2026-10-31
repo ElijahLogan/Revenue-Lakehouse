@@ -1,8 +1,9 @@
 """Seed Stripe test mode with customers and payments.
 
-Six customers share an email domain with a seeded Salesforce account; two exist
-only in Stripe (paying customers sales never logged); two Salesforce companies
-never pay. That gives the gold layer real reconciliation work. Run once.
+Customers input into Stripe
+6 match emails in salesforce. 2 only in stripe 
+2 companies never pay 
+
 """
 
 from __future__ import annotations
@@ -28,12 +29,12 @@ def run() -> None:
     for i, (name, website) in enumerate(paying):
         customer = stripe.Customer.create(name=name, email=f"accounts@{website}")
         for amount in CHARGES[i % len(CHARGES)]:
-            stripe.PaymentIntent.create(
+           stripe.PaymentIntent.create(
                 amount=amount,
                 currency="usd",
                 customer=customer.id,
                 payment_method="pm_card_visa",  # Stripe's built-in test card
-                payment_method_types=["card"],
+                automatic_payment_methods={"enabled": True, "allow_redirects": "never"},
                 confirm=True,
             )
     print(f"Created {len(paying)} Stripe customers with test payments")
