@@ -1,0 +1,5 @@
+requests==2.32.5
+requests-file==3.0.1
+requests-toolbelt==1.0.0
+simple-salesforce==1.12.10
+stripe==16.1.0
