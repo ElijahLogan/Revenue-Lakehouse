@@ -44,16 +44,20 @@ def clean(record: dict) -> dict:
 def run() -> None:
     sf = connect()
     volume = VolumeClient.from_env()
+    watermarks = WatermarkStore(volume)
     run_id = new_run_id()
 
-    records = [clean(r) for r in sf.query_all(ACCOUNT_QUERY)["records"]]
+    watermark = watermarks.get(WATERMARK_KEY)
+    records = [clean(r) for r in sf.query_all(build_query(watermark))["records"]]
+    log.info("%d accounts changed since %s", len(records), watermark)
+
     if not records:
         return
+
     path = landing_path("salesforce", "account", run_id)
     volume.write_text(path, to_ndjson(records, "salesforce", "account", run_id))
+
+    # Only advance the watermark after the data has landed.
+    watermarks.set(WATERMARK_KEY, max_watermark(records, "SystemModstamp", watermark))
+    watermarks.save()
     log.info("Landed %d accounts at %s", len(records), path)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    run()
