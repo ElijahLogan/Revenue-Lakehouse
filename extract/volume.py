@@ -6,7 +6,7 @@ Uses the Databricks Files API: PUT to upload, GET to download.
 import os
 
 import requests
-
+from __future__ import annotations
 
 class VolumeClient:
     def __init__(self, host: str, token: str, volume_path: str):
@@ -40,6 +40,8 @@ class VolumeClient:
 
     def read_text(self, path: str) -> str:
         resp = requests.get(self._url(path), headers=self._headers(), timeout=30)
+        if resp.status_code == '404':
+            return None
         resp.raise_for_status()
         return resp.text
 
