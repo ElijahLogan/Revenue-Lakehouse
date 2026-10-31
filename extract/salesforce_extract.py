@@ -2,8 +2,8 @@
 
 v1: full pull every run. No watermark yet.
 """
-
 from __future__ import annotations
+
 
 import logging
 import os
@@ -22,6 +22,8 @@ ACCOUNT_QUERY = (
     "CreatedDate, SystemModstamp FROM Account"
 )
 def build_query(watermark: str) -> str:
+
+    
     return f"{ACCOUNT_QUERY} WHERE SystemModstamp > {watermark} ORDER BY SystemModstamp ASC"
 
 def connect() -> Salesforce:
@@ -61,3 +63,8 @@ def run() -> None:
     watermarks.set(WATERMARK_KEY, max_watermark(records, "SystemModstamp", watermark))
     watermarks.save()
     log.info("Landed %d accounts at %s", len(records), path)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    run()
