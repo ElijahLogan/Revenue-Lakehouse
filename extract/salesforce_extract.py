@@ -50,27 +50,32 @@ def clean(record: dict) -> dict:
     return {k: v for k, v in record.items() if k != "attributes"}
 
 
+def extract_entity(sf, volume, watermarks, entity: str, base_query: str, run_id: str) -> None:
+    key = f"salesforce.{entity}"
+    watermark = watermarks.get(key)
+    records = [clean(r) for r in sf.query_all(build_query(base_query, watermark))["records"]]
+    log.info("%s: %d records changed since %s", entity, len(records), watermark)
+
+    if not records:
+        return
+
+    path = landing_path("salesforce", entity, run_id)
+    volume.write_text(path, to_ndjson(records, "salesforce", entity, run_id))
+    watermarks.set(key, max_watermark(records, "SystemModstamp", watermark))
+    log.info("Landed %d %s records at %s", len(records), entity, path)
+
+
 def run() -> None:
     sf = connect()
     volume = VolumeClient.from_env()
     watermarks = WatermarkStore(volume)
     run_id = new_run_id()
 
-    watermark = watermarks.get(WATERMARK_KEY)
-    records = [clean(r) for r in sf.query_all(build_query(watermark))["records"]]
-    log.info("%d accounts changed since %s", len(records), watermark)
+    for entity, base_query in ENTITIES.items():
+        extract_entity(sf, volume, watermarks, entity, base_query, run_id)
 
-    if not records:
-        return
-
-    path = landing_path("salesforce", "account", run_id)
-    volume.write_text(path, to_ndjson(records, "salesforce", "account", run_id))
-
-    # Only advance the watermark after the data has landed.
-    watermarks.set(WATERMARK_KEY, max_watermark(records, "SystemModstamp", watermark))
+    # Save once, after every object has landed.
     watermarks.save()
-    log.info("Landed %d accounts at %s", len(records), path)
-
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
