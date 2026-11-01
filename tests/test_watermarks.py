@@ -3,7 +3,6 @@ from extract.watermarks import DEFAULT_WATERMARK, WatermarkStore, max_watermark
 
 class FakeVolume:
     """In-memory stand-in for VolumeClient."""
-
     def __init__(self):
         self.files = {}
 
