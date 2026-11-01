@@ -7,18 +7,18 @@ variable "catalog_name" {
 variable "create_catalog" {
   description = "Create the catalog. Set false to reuse an existing catalog (e.g. the workspace default)."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "analyst_group" {
-  description = "Group granted read access to the gold schema only."
+  description = "Principal granted read access to gold only. Free Edition can't create account-level groups, so this uses the built-in 'account users' group."
   type        = string
-  default     = "revenue_analysts"
+  default     = "account users"
 }
 
 variable "create_analyst_group" {
-  description = "Create the analyst group in the workspace."
+  description = "Unity Catalog grants need an account-level group, which Free Edition can't create."
   type        = bool
-  default     = true
+  default     = false
 }
 
