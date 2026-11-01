@@ -29,3 +29,4 @@
   so the first-run 404 crashed instead of returning None.
 - Expected Salesforce's timestamp format (`.000+0000`) to break the SOQL query on the second run.
   Tested it, and SOQL accepted it, so no fix was needed.
+- Delta only creates a version when data changes. Reruns with no new files leave the table at the same version, more evidence the checkpoint is working.”
