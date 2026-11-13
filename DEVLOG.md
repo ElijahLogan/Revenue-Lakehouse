@@ -30,3 +30,6 @@
 - Expected Salesforce's timestamp format (`.000+0000`) to break the SOQL query on the second run.
   Tested it, and SOQL accepted it, so no fix was needed.
 - Delta only creates a version when data changes. Reruns with no new files leave the table at the same version, more evidence the checkpoint is working.”
+
+20226-11-13
+Pipeline failed: stripe/customer landing folder empty. The raw files were gone, and the extractor’s watermark had already moved past those events, so rerunning it pulled nothing. Backfilled by removing the stripe.events watermark and re-extracting. Charges re-landed as duplicates, which silver dedupes. Lessons: raw is the source of truth, so protect it; and a backfill needs both the watermark reset and the source still holding the data (Stripe keeps events for 30 days).

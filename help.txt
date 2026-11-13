@@ -1,0 +1,12 @@
+set -a && source .env && set +a
+python -c "
+import json
+from extract.volume import VolumeClient
+v = VolumeClient.from_env()
+state = json.loads(v.read_text('_state/watermarks.json'))
+print('before:', state)
+state.pop('stripe.events', None)
+v.write_text('_state/watermarks.json', json.dumps(state, indent=2, sort_keys=True))
+print('after: ', state)
+"
+python -m extract.stripe_extract
