@@ -1,0 +1,12 @@
+name: revenue_lakehouse
+version: "1.0.0"
+config-version: 2
+profile: revenue_lakehouse
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+models:
+  revenue_lakehouse:
+    +materialized: table
