@@ -10,3 +10,13 @@ models:
         data_tests: [unique, not_null]
       - name: source_record_count
         description: How many Salesforce records were merged into this company.revenue_lakehouse
+  - name: fct_revenue_by_account
+    description: Booked vs. collected revenue per company, with the variance and a reconciliation status.
+    columns:
+      - name: account_key
+        data_tests: [unique, not_null]
+      - name: reconciliation_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["reconciled", "underpaid", "overpaid", "booked_not_paid", "paid_not_booked", "paid_not_in_crm"]
