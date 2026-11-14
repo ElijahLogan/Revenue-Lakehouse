@@ -10,3 +10,8 @@ v.write_text('_state/watermarks.json', json.dumps(state, indent=2, sort_keys=Tru
 print('after: ', state)
 "
 python -m extract.stripe_extract
+
+#
+CI failed: GitHub’s Ubuntu 26.04 runners dropped Python 3.9 (end of life). 
+Moved CI to 3.12 and pinned the runner to ubuntu-24.04 so future image changes are deliberate.
+ Local dev is still on 3.9; upgrading it is a follow-up.

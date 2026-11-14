@@ -1,0 +1,35 @@
+name: Extract
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"     # every 6 hours, at 17 minutes past (times are UTC)
+  workflow_dispatch:            # adds a "Run workflow" button for manual runs
+
+# Never let two runs overlap: both would read and write the same watermark file.
+concurrency:
+  group: extract
+  cancel-in-progress: false
+
+jobs:
+  extract:
+    runs-on: ubuntu-24.04
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      LANDING_VOLUME: /Volumes/revenue/raw/landing
+      SF_CLIENT_ID: ${{ secrets.SF_CLIENT_ID }}
+      SF_CLIENT_SECRET: ${{ secrets.SF_CLIENT_SECRET }}
+      SF_DOMAIN: ${{ secrets.SF_DOMAIN }}
+      STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+
+      # Sequential on purpose (see below).
+      - name: Extract Salesforce
+        run: python -m extract.salesforce_extract
+      - name: Extract Stripe
+        run: python -m extract.stripe_extract
