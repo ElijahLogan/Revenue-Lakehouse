@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: int_account_resolution
+    description: Maps every Salesforce account record to one master account per real company.
+    columns:
+      - name: account_id
+        data_tests: [unique, not_null]
+      - name: master_account_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: source('silver', 'salesforce_account')
+                field: account_id
+
+
+  - name: int_customer_account_match
+    description: Stripe customers matched to companies by email domain. Unmatched customers are kept.
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: match_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["matched_on_domain", "unmatched"]
+      - name: account_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_account')
+                field: account_id
