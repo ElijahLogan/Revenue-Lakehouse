@@ -4,7 +4,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
-
+.user.yml
 # dbt
 dbt/target/
 dbt/dbt_packages/

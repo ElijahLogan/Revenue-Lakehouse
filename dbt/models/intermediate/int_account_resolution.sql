@@ -1,7 +1,7 @@
 -- Map every Salesforce account record to one master account per real company.
 -- Records sharing a normalized domain are the same company; the oldest one is the master.
 
-{{ config(materialized='view') }}
+-- {{ config(materialized='view') }}
 
 with accounts as (
 
