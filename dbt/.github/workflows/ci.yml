@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"     # matches local development
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+      - name: Run unit tests
+        run: python -m pytest -q
+
+  dbt-parse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install dbt
+        run: pip install "dbt-databricks~=1.10.0"
+      - name: Check the dbt project compiles (no warehouse needed)
+        working-directory: dbt
+        env:
+             # dbt parse never connects; profiles.yml just requires these to exist.
+          # Fake values on purpose: this job needs no credentials.
+          DATABRICKS_HOST: https://example.cloud.databricks.com
+          DATABRICKS_HTTP_PATH: /sql/1.0/warehouses/placeholder
+          DATABRICKS_TOKEN: placeholder
+        run: dbt parse --profiles-dir .
