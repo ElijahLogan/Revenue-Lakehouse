@@ -1,7 +1,7 @@
 -- Match each Stripe customer to a company by email domain.
 -- Unmatched customers are kept, so their revenue never silently disappears from gold.
 
-{{ config(materialized='view') }}
+-- {{ config(materialized='view') }}
 
 with customers as (
     select customer_id, customer_name, email_domain

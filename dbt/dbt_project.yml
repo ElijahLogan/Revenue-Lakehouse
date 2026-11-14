@@ -10,3 +10,6 @@ macro-paths: ["macros"]
 models:
   revenue_lakehouse:
     +materialized: table
+    intermediate:
+      +materialized: view
+      +schema: intermediate
