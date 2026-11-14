@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: dim_account
+    description: One row per real company, after duplicate CRM records are merged.
+    columns:
+      - name: account_id
+        data_tests: [unique, not_null]
+      - name: company_key
+        data_tests: [unique, not_null]
+      - name: source_record_count
+        description: How many Salesforce records were merged into this company.revenue_lakehouse
