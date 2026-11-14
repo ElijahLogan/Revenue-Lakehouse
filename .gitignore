@@ -22,3 +22,6 @@ terraform/.terraform.lock.hcl
 # Databricks bundles
 .databricks/
 
+.terraform/
+*.tfstate
+*.tfstate.backup
