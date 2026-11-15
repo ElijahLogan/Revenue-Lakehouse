@@ -1,0 +1,45 @@
+name: Refresh
+
+on:
+  schedule:
+    - cron: "17 11 * * *"      # once a day, 11:17 UTC (6:17 a.m. New York)
+  workflow_dispatch:
+
+# Never let two runs overlap: they share the watermark file and the pipeline.
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      LANDING_VOLUME: /Volumes/revenue/raw/landing
+      SF_CLIENT_ID: ${{ secrets.SF_CLIENT_ID }}
+      SF_CLIENT_SECRET: ${{ secrets.SF_CLIENT_SECRET }}
+      SF_DOMAIN: ${{ secrets.SF_DOMAIN }}
+      STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt "dbt-databricks~=1.10.0"
+
+      - name: Extract Salesforce
+        run: python -m extract.salesforce_extract
+      - name: Extract Stripe
+        run: python -m extract.stripe_extract
+
+      - name: Run Lakeflow pipeline (bronze + silver)
+        env:
+          DATABRICKS_PIPELINE_ID: fc9dff34-61aa-453b-9f91-a4317ea87629
+        run: python -m orchestrate.run_pipeline
+
+      - name: Build and test gold (dbt)
+        working-directory: dbt
+        env:
+          DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
+        run: dbt build --profiles-dir .
